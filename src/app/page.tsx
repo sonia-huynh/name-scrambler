@@ -66,39 +66,44 @@ export default function Home() {
   }
 
   function handleShuffle() {
-    if (people.length < 2) {
+    if (people.length <= 2) {
       alert("Not enough people to shuffle.");
     }
 
     if (people.length > names.length) {
+      alert("Not enough names to assign to everyone.");
       throw new Error("Not enough names to assign to everyone.");
     }
 
-    const shuffledNames: string[] = shuffle([...names]);
+    if (people.length > 2) {
+      let shuffledNames: string[] = shuffle([...names]);
 
-    const updatedPeople = people.map((person) => {
-      let assignedName = shuffledNames.pop();
+      let shuffleTimes = 0;
 
-      while (person.name === assignedName && shuffledNames.length > 0) {
-        shuffledNames.push(assignedName);
-        assignedName = shuffledNames.shift();
+      while (shuffledNames.some((name, index) => name === names[index])) {
+        shuffledNames = shuffle([...names]);
+        shuffleTimes++;
+        if (shuffleTimes > 100) {
+          alert(
+            "Unexpected error: Name assignment failed due to insufficient names."
+          );
+          throw new Error(
+            "Unexpected error: Name assignment failed due to insufficient names."
+          );
+        }
       }
+      const updatedPeople = people.map((person, index) => ({
+        ...person,
+        assignedPerson: shuffledNames[index],
+      }));
 
-      if (assignedName === undefined) {
-        throw new Error(
-          "Unexpected error: Name assignment failed due to insufficient names."
-        );
-      }
+      setPeople(updatedPeople);
 
       alert(
         "Your names have been shuffled! Click email to send them to your friends :)"
       );
       setShuffled(true);
-      return { ...person, assignedPerson: assignedName };
-    });
-
-    setPeople(updatedPeople);
-    setNames(shuffledNames);
+    }
   }
 
   console.log(people);
@@ -149,13 +154,14 @@ export default function Home() {
         <p className="text-orange-600">Created by Sonia Huynh for fun</p>
       </div>
       <div className="mt-20 flex justify-center">
-        <form>
+        <form onSubmit={(e) => handleSubmit(e)}>
           <label htmlFor="name" className="mr-2">
             Name:
           </label>
           <input
             className="outline-none border border-purple-300 rounded-md p-2"
             type="text"
+            required
             name="name"
             placeholder="Enter name"
             onChange={(e) => handleChange(e)}
@@ -167,19 +173,19 @@ export default function Home() {
           <input
             className="outline-none border border-pink-300 rounded-md p-2"
             type="email"
+            required
             name="email"
             placeholder="Enter their email"
             onChange={(e) => handleChange(e)}
             value={person.email}
           />
+          <button
+            type="submit"
+            className="mx-4 p-2 bg-green-500 rounded-full hover:bg-green-600 text-white"
+          >
+            Submit
+          </button>
         </form>
-
-        <button
-          className="mx-4 p-2 bg-green-500 rounded-full hover:bg-green-600 text-white"
-          onClick={(e) => handleSubmit(e)}
-        >
-          Submit
-        </button>
       </div>
       <div className="mt-20 flex justify-center">
         <h1 className="font-bold text-2xl text-purple-500">Your Group:</h1>
