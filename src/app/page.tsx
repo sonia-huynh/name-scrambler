@@ -38,7 +38,7 @@ export default function Home() {
     }));
   }
 
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+  function handleSubmit(e) {
     e.preventDefault();
     if (person.name.trim() && person.email.trim()) {
       setPeople((prevPeople) => [...prevPeople, person]);
