@@ -47,6 +47,24 @@ export default function Home() {
     setPerson({ name: "", email: "", assignedPerson: "" });
   }
 
+  function handleDelete(deletePerson: Person) {
+    const personIndex = people.findIndex(
+      (person) =>
+        person.name === deletePerson.name && person.email === deletePerson.email
+    );
+
+    if (personIndex === -1) {
+      throw new Error("Person not found");
+    } else {
+      setPeople((prevPeople) =>
+        prevPeople.filter((_, index) => index !== personIndex)
+      );
+      setNames((prevNames) =>
+        prevNames.filter((name) => name !== deletePerson.name)
+      );
+    }
+  }
+
   function handleShuffle() {
     if (people.length < 2) {
       alert("Not enough people to shuffle.");
@@ -119,6 +137,7 @@ export default function Home() {
         );
     }
   }
+  console.log(names);
 
   return (
     <div className="mt-20">
@@ -128,7 +147,7 @@ export default function Home() {
         </h1>
       </div>
       <div className="flex justify-center mt-4">
-        <p className="text-purple-600">Created by Sonia Huynh for fun</p>
+        <p className="text-orange-600">Created by Sonia Huynh for fun</p>
       </div>
       <div className="mt-20 flex justify-center">
         <form>
@@ -169,13 +188,30 @@ export default function Home() {
       <div className="mt-4 flex justify-center  w-full">
         {people.length > 0 && (
           <div className="mt-4 flex justify-center w-full">
-            <div className="max-w-md border-purple-200 border-2 p-4 rounded-lg">
+            <div className="max-w-xlg border-purple-200 border-2 p-4 rounded-lg">
+              {/* <ul className="flex flex-col items-left "> */}
               <ul>
                 {people.map((person, index) => (
-                  <li key={index} className="flex items-center mb-2">
-                    <p>Name: {person.name}</p>
-                    <p className="ml-8">Email: {person.email}</p>
-                  </li>
+                  <div
+                    key={index}
+                    className="flex justify-between items-center gap-8 mb-4"
+                  >
+                    <li>
+                      <p>Name: {person.name}</p>
+                    </li>
+                    <li>
+                      <p className="">Email: {person.email}</p>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleDelete(person);
+                        }}
+                      >
+                        delete
+                      </button>
+                    </li>
+                  </div>
                 ))}
               </ul>
             </div>
