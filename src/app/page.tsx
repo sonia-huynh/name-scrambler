@@ -127,7 +127,10 @@ export default function Home() {
           Welcome to Name Scrmblr
         </h1>
       </div>
-      <div className="mt-40 flex justify-center">
+      <div className="flex justify-center mt-4">
+        <p className="text-purple-600">Created by Sonia Huynh for fun</p>
+      </div>
+      <div className="mt-20 flex justify-center">
         <form>
           <label htmlFor="name" className="mr-2">
             Name:
@@ -164,16 +167,20 @@ export default function Home() {
         <h1 className="font-bold text-2xl text-purple-500">Your Group:</h1>
       </div>
       <div className="mt-4 flex justify-center  w-full">
-        <div className="max-w-md border-purple-200  border-2 p-4 rounded-lg">
-          <ul>
-            {people.map((person, index) => (
-              <li key={index} className="flex items-center mb-2">
-                <p>Name: {person.name}</p>
-                <p className="ml-8">Email: {person.email}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {people.length > 0 && (
+          <div className="mt-4 flex justify-center w-full">
+            <div className="max-w-md border-purple-200 border-2 p-4 rounded-lg">
+              <ul>
+                {people.map((person, index) => (
+                  <li key={index} className="flex items-center mb-2">
+                    <p>Name: {person.name}</p>
+                    <p className="ml-8">Email: {person.email}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
       {!shuffled && (
         <div className="flex justify-center mt-10">
