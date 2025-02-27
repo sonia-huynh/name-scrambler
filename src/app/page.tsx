@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import emailjs from "emailjs-com";
 
 interface Person {
@@ -38,7 +38,7 @@ export default function Home() {
     }));
   }
 
-  function handleSubmit(e) {
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (person.name.trim() && person.email.trim()) {
       setPeople((prevPeople) => [...prevPeople, person]);
