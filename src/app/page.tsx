@@ -90,16 +90,15 @@ export default function Home() {
         );
       }
 
+      alert(
+        "Your names have been shuffled! Click email to send them to your friends :)"
+      );
+      setShuffled(true);
       return { ...person, assignedPerson: assignedName };
     });
 
     setPeople(updatedPeople);
     setNames(shuffledNames);
-
-    alert(
-      "Your names have been shuffled! Click email to send them to your friends :)"
-    );
-    setShuffled(true);
   }
 
   console.log(people);
