@@ -1,101 +1,232 @@
-import Image from "next/image";
+"use client";
+
+import { ChangeEvent, useState } from "react";
+import emailjs from "emailjs-com";
+
+interface Person {
+  name: string;
+  email: string;
+  assignedPerson: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [people, setPeople] = useState<Person[]>([]);
+  const [person, setPerson] = useState<Person>({
+    name: "",
+    email: "",
+    assignedPerson: "",
+  });
+  const [names, setNames] = useState<string[]>([]);
+  const [shuffled, setShuffled] = useState<boolean>(false);
+  const [emailed, setEmailed] = useState<boolean>(false);
+  const [reveal, setReveal] = useState<boolean>(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  function shuffle(names: string[]) {
+    for (let i = names.length - 1; i > 0; i--) {
+      const randomI = Math.floor(Math.random() * (i + 1));
+      [names[i], names[randomI]] = [names[randomI], names[i]];
+    }
+    return names;
+  }
+  console.log(names);
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.currentTarget;
+
+    setPerson((prevPerson) => ({
+      ...prevPerson,
+      [name]: value,
+    }));
+  }
+
+  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    if (person.name.trim() && person.email.trim()) {
+      setPeople((prevPeople) => [...prevPeople, person]);
+      setNames((prevNames) => [...prevNames, person.name]);
+    }
+    setPerson({ name: "", email: "", assignedPerson: "" });
+  }
+
+  function handleShuffle() {
+    if (people.length < 2) {
+      alert("Not enough people to shuffle.");
+    }
+
+    if (people.length > names.length) {
+      throw new Error("Not enough names to assign to everyone.");
+    }
+
+    const shuffledNames: string[] = shuffle([...names]);
+
+    const updatedPeople = people.map((person) => {
+      let assignedName = shuffledNames.pop();
+
+      while (person.name === assignedName && shuffledNames.length > 0) {
+        shuffledNames.push(assignedName);
+        assignedName = shuffledNames.shift();
+      }
+
+      if (assignedName === undefined) {
+        throw new Error(
+          "Unexpected error: Name assignment failed due to insufficient names."
+        );
+      }
+
+      return { ...person, assignedPerson: assignedName };
+    });
+
+    setPeople(updatedPeople);
+    setNames(shuffledNames);
+
+    alert(
+      "Your names have been shuffled! Click email to send them to your friends :)"
+    );
+    setShuffled(true);
+  }
+
+  console.log(people);
+
+  function handleEmail() {
+    for (let i = 0; i < people.length; i++) {
+      const person = people[i];
+
+      if (!person.assignedPerson) {
+        console.error(`No assigned person for ${person.name}`);
+        throw new Error(`No assigned person for ${person.name}`);
+      }
+
+      const templateParams = {
+        to_name: person.name,
+        to_email: person.email,
+        assigned_person: person.assignedPerson,
+      };
+
+      emailjs
+        .send(
+          "service_vtfflip",
+          "template_us943xh",
+          templateParams,
+          "ZEDYc4ePC7zbIWKLD"
+        )
+        .then(
+          (response) => {
+            console.log("Email sent successfully!", response);
+            setEmailed(true);
+          },
+          (error) => {
+            console.log("Error sending email:", error);
+          }
+        );
+    }
+  }
+
+  return (
+    <div className="mt-20">
+      <div className="flex justify-center">
+        <h1 className="font-bold text-5xl text-orange-400">
+          Welcome to Name Scrmblr
+        </h1>
+      </div>
+      <div className="mt-40 flex justify-center">
+        <form>
+          <label htmlFor="name" className="mr-2">
+            Name:
+          </label>
+          <input
+            className="outline-none border border-purple-300 rounded-md p-2"
+            type="text"
+            name="name"
+            placeholder="Enter name"
+            onChange={(e) => handleChange(e)}
+            value={person.name}
+          />
+          <label htmlFor="email" className="ml-8 mr-2">
+            Email:
+          </label>
+          <input
+            className="outline-none border border-pink-300 rounded-md p-2"
+            type="email"
+            name="email"
+            placeholder="Enter their email"
+            onChange={(e) => handleChange(e)}
+            value={person.email}
+          />
+        </form>
+
+        <button
+          className="mx-4 p-2 bg-green-500 rounded-full hover:bg-green-600 text-white"
+          onClick={(e) => handleSubmit(e)}
+        >
+          Submit
+        </button>
+      </div>
+      <div className="mt-20 flex justify-center">
+        <h1 className="font-bold text-2xl text-purple-500">Your Group:</h1>
+      </div>
+      <div className="mt-4 flex justify-center  w-full">
+        <div className="max-w-md border-purple-200  border-2 p-4 rounded-lg">
+          <ul>
+            {people.map((person, index) => (
+              <li key={index} className="flex items-center mb-2">
+                <p>Name: {person.name}</p>
+                <p className="ml-8">Email: {person.email}</p>
+              </li>
+            ))}
+          </ul>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+      {!shuffled && (
+        <div className="flex justify-center mt-10">
+          <button
+            className="mx-4 p-2 bg-green-500 rounded-full hover:bg-green-600 text-white "
+            onClick={() => handleShuffle()}
+          >
+            Shuffle
+          </button>
+        </div>
+      )}
+      {shuffled && !emailed && (
+        <div className="flex justify-center mt-10">
+          <button
+            className="mx-4 p-2 bg-pink-300 rounded-full hover:bg-pink-500 text-white "
+            onClick={() => handleEmail()}
+          >
+            Email to your friends
+          </button>
+        </div>
+      )}
+      {emailed && (
+        <>
+          <div className="flex justify-center mt-10">
+            <p className="mx-4 p-2 text-purple-500">Check your emails!</p>
+          </div>
+          <div className="flex justify-center mt-10">
+            <button
+              className="mx-4 p-2 bg-pink-300 rounded-full hover:bg-pink-500 text-white "
+              onClick={() => setReveal(true)}
+            >
+              Reveal assigned names
+            </button>
+          </div>
+        </>
+      )}
+
+      {reveal && (
+        <div className="mt-8 flex justify-center">
+          <div className="max-w-md border-pink-200  border-2 p-4 rounded-lg">
+            <ul>
+              {people?.map((person, index) => (
+                <li key={index} className="flex items-center mb-2">
+                  <p>Name: {person.name}</p>
+                  <p className="ml-8">
+                    Assigned Person: {person.assignedPerson}{" "}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
