@@ -163,7 +163,6 @@ export default function Home() {
         <p className="text-xl text-[color:--accent] max-sm:text-lg text-center">
           Created by Sonia Huynh for fun
         </p>
-        <button onClick={() => setEmailed(true)}>set</button>
       </div>
       <div className="mt-16 max-sm:text-xlg max-lg:text-center max-lg:mt-6">
         <form onSubmit={(e) => handleSubmit(e)}>
