@@ -1,5 +1,6 @@
 "use client";
 import { ChangeEvent, FormEvent, useState } from "react";
+import Image from "next/image";
 import emailjs from "emailjs-com";
 import { ToastContainer, toast } from "react-toastify/unstyled";
 import { Bounce } from "react-toastify";
@@ -163,6 +164,15 @@ export default function Home() {
         <p className="text-xl text-[color:--accent] max-sm:text-lg text-center">
           Created by Sonia Huynh for fun
         </p>
+      </div>
+      <div className="flex justify-center mt-2">
+        <Image
+          src="/favicon.ico"
+          width={200}
+          height={20}
+          alt="blender to symbolise scrambling names"
+          className="max-md:w-40 max-sm:w-30"
+        />
       </div>
       <div className="mt-16 max-sm:text-xlg max-lg:text-center max-lg:mt-6">
         <form onSubmit={(e) => handleSubmit(e)}>
