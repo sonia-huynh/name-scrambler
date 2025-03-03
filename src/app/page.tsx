@@ -1,7 +1,8 @@
 "use client";
-
 import { ChangeEvent, FormEvent, useState } from "react";
 import emailjs from "emailjs-com";
+import { ToastContainer, toast } from "react-toastify/unstyled";
+import { Bounce } from "react-toastify";
 
 interface Person {
   name: string;
@@ -28,7 +29,6 @@ export default function Home() {
     }
     return names;
   }
-  console.log(names);
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.currentTarget;
 
@@ -66,12 +66,28 @@ export default function Home() {
   }
 
   function handleShuffle() {
+    const noShuffle = () =>
+      toast.error("You must have at least 3 people to shuffle!");
+
+    const notEnoughNames = () =>
+      toast.error("Not enough names to assign to everyone.");
+
+    const overShuffled = () =>
+      toast.error(
+        "Unexpected error: Name assignment failed due to insufficient names."
+      );
+
+    const shuffled = () =>
+      toast.success(
+        "Your names have been shuffled! Click email to send them to your friends :)"
+      );
+
     if (people.length <= 2) {
-      alert("Not enough people to shuffle.");
+      noShuffle();
     }
 
     if (people.length > names.length) {
-      alert("Not enough names to assign to everyone.");
+      notEnoughNames();
       throw new Error("Not enough names to assign to everyone.");
     }
 
@@ -84,9 +100,7 @@ export default function Home() {
         shuffledNames = shuffle([...names]);
         shuffleTimes++;
         if (shuffleTimes > 100) {
-          alert(
-            "Unexpected error: Name assignment failed due to insufficient names."
-          );
+          overShuffled();
           throw new Error(
             "Unexpected error: Name assignment failed due to insufficient names."
           );
@@ -99,14 +113,10 @@ export default function Home() {
 
       setPeople(updatedPeople);
 
-      alert(
-        "Your names have been shuffled! Click email to send them to your friends :)"
-      );
+      shuffled();
       setShuffled(true);
     }
   }
-
-  console.log(people);
 
   function handleEmail() {
     for (let i = 0; i < people.length; i++) {
@@ -141,25 +151,30 @@ export default function Home() {
         );
     }
   }
-  console.log(names);
 
   return (
-    <div className="mt-20">
+    <div className="app-border">
       <div className="flex justify-center">
-        <h1 className="font-bold text-5xl text-orange-400">
+        <h1 className="font-bold text-5xl text-[color:--primary] max-sm:text-xlg text-center">
           Welcome to Name Scrmblr
         </h1>
       </div>
       <div className="flex justify-center mt-4">
-        <p className="text-orange-600">Created by Sonia Huynh for fun</p>
+        <p className="text-xl text-[color:--accent] max-sm:text-lg text-center">
+          Created by Sonia Huynh for fun
+        </p>
+        <button onClick={() => setEmailed(true)}>set</button>
       </div>
-      <div className="mt-20 flex justify-center">
+      <div className="mt-16 max-sm:text-xlg max-lg:text-center max-lg:mt-6">
         <form onSubmit={(e) => handleSubmit(e)}>
-          <label htmlFor="name" className="mr-2">
+          <label
+            htmlFor="name"
+            className="mr-2 input-mobile-size max-lg:block max max-lg:mr-0"
+          >
             Name:
           </label>
           <input
-            className="outline-none border border-purple-300 rounded-md p-2"
+            className="outline-none border border-[color:--secondary] rounded-md p-2 max-w-[250px] input-size-small-screen "
             type="text"
             required
             name="name"
@@ -167,11 +182,14 @@ export default function Home() {
             onChange={(e) => handleChange(e)}
             value={person.name}
           />
-          <label htmlFor="email" className="ml-8 mr-2">
+          <label
+            htmlFor="email"
+            className="ml-8 mr-2 input-mobile-size max-lg:block max-lg:mt-4 max-lg:ml-0"
+          >
             Email:
           </label>
           <input
-            className="outline-none border border-pink-300 rounded-md p-2"
+            className="outline-none border border-[color:--secondary] rounded-md p-2 max-w-[360px] input-size-small-screen "
             type="email"
             required
             name="email"
@@ -181,37 +199,54 @@ export default function Home() {
           />
           <button
             type="submit"
-            className="mx-4 p-2 bg-green-500 rounded-full hover:bg-green-600 text-white"
+            className="mx-4 p-2 bg-[--accent] rounded-full hover:bg-[color:--secondary] text-white submit-mobile-screen"
           >
             Submit
           </button>
         </form>
       </div>
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover
+        theme="colored"
+        transition={Bounce}
+      />
       <div className="mt-20 flex justify-center">
-        <h1 className="font-bold text-2xl text-purple-500">Your Group:</h1>
+        <h1 className="font-bold text-2xl text-[color:--primary]">
+          Your Group:
+        </h1>
       </div>
-      <div className="mt-4 flex justify-center  w-full">
+      <div className="mt-2 flex justify-center w-full ">
         {people.length > 0 && (
-          <div className="mt-4 flex justify-center w-full">
-            <div className="max-w-xlg border-purple-200 border-2 p-4 rounded-lg">
-              {/* <ul className="flex flex-col items-left "> */}
+          <div className="flex justify-center w-full">
+            <div className="p-4 ">
               <ul>
                 {people.map((person, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-center gap-8 mb-4"
+                    className="flex justify-between gap-8 mb-4  input-small-screen"
                   >
-                    <li>
-                      <p>Name: {person.name}</p>
+                    <li className="flex gap-2">
+                      <p className="text-[--accent]">Name:</p>
+                      <p>{person.name}</p>
                     </li>
-                    <li>
-                      <p className="">Email: {person.email}</p>
+                    <li className="flex gap-2">
+                      <p className="text-[--accent]">Email:</p>
+                      <p>{person.email}</p>
                     </li>
                     <li>
                       <button
                         onClick={() => {
                           handleDelete(person);
                         }}
+                        className={shuffled ? "hidden" : "text-red-600 flex"}
                       >
                         delete
                       </button>
@@ -226,7 +261,11 @@ export default function Home() {
       {!shuffled && (
         <div className="flex justify-center mt-10">
           <button
-            className="mx-4 p-2 bg-green-500 rounded-full hover:bg-green-600 text-white "
+            className={
+              shuffled
+                ? "hidden"
+                : "mx-4 p-2 bg-[--accent] rounded-full hover:bg-[--secondary] text-white"
+            }
             onClick={() => handleShuffle()}
           >
             Shuffle
@@ -236,7 +275,7 @@ export default function Home() {
       {shuffled && !emailed && (
         <div className="flex justify-center mt-10">
           <button
-            className="mx-4 p-2 bg-pink-300 rounded-full hover:bg-pink-500 text-white "
+            className="mx-4 p-2 bg-[--accent] rounded-full hover:bg-pink-500 text-white "
             onClick={() => handleEmail()}
           >
             Email to your friends
@@ -245,12 +284,18 @@ export default function Home() {
       )}
       {emailed && (
         <>
-          <div className="flex justify-center mt-10">
-            <p className="mx-4 p-2 text-purple-500">Check your emails!</p>
+          <div className="flex justify-center mt-6">
+            <p className="mx-4 p-2 text-[--primary] font-bold ">
+              Check your emails!
+            </p>
           </div>
-          <div className="flex justify-center mt-10">
+          <div className={reveal ? "hidden" : "flex justify-center mt-10"}>
             <button
-              className="mx-4 p-2 bg-pink-300 rounded-full hover:bg-pink-500 text-white "
+              className={
+                reveal
+                  ? "hidden"
+                  : "mx-4 p-2 bg-[--accent] rounded-full hover:bg-[--secondary] text-white"
+              }
               onClick={() => setReveal(true)}
             >
               Reveal assigned names
@@ -261,15 +306,22 @@ export default function Home() {
 
       {reveal && (
         <div className="mt-8 flex justify-center">
-          <div className="max-w-md border-pink-200  border-2 p-4 rounded-lg">
+          <div className="p-4 ">
             <ul>
               {people?.map((person, index) => (
-                <li key={index} className="flex items-center mb-2">
-                  <p>Name: {person.name}</p>
-                  <p className="ml-8">
-                    Assigned Person: {person.assignedPerson}{" "}
-                  </p>
-                </li>
+                <div
+                  key={index}
+                  className="flex justify-between gap-8 mb-4 input-small-screen"
+                >
+                  <li className="flex gap-2">
+                    <p className="text-[--accent]">Name: </p>
+                    <p>{person.name}</p>
+                  </li>
+                  <li className="flex gap-2">
+                    <p className="text-[--accent]">Assigned Person:</p>
+                    <p>{person.assignedPerson}</p>
+                  </li>
+                </div>
               ))}
             </ul>
           </div>
