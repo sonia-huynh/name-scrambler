@@ -3,19 +3,59 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: #f2fff8;
   --foreground: #171717;
+  --primary: #fa914e;
+  --secondary: #5c6dee;
+  --accent: #da12a8;
+  --accent2: #0000ff33;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.app-border {
+  box-shadow: 12px 12px 2px 2px #8500ad33;
+  padding: 2.5rem;
+  border: 2px solid var(--accent2);
+  border-radius: 50px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  background: var(--background);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  background-color: rgb(216, 255, 252);
+  color: var(--secondary);
   font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+@media screen and (width < 48rem) {
+  .app-border {
+    width: auto;
+    padding: auto;
+  }
+
+  @media screen and (width < 64rem) {
+    .input-size-small-screen {
+      max-width: 300px;
+    }
+    .submit-mobile-screen {
+      margin-top: 20;
+      display: flex;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  @media screen and (width < 62rem) {
+    .input-small-screen {
+      display: flex;
+      flex-direction: column;
+      justify-items: left;
+      gap: 0;
+      font-size: 1.1rem;
+    }
+  }
 }
